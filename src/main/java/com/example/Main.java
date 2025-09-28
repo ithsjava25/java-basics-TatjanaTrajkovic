@@ -3,6 +3,7 @@ package com.example;
 import com.example.api.ElpriserAPI;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Main {
@@ -154,15 +155,22 @@ public class Main {
             List<ElpriserAPI.Elpris> tomorrowPrice = elpriserAPI.getPriser(date.plusDays(1), ElpriserAPI.Prisklass.valueOf(zone));
             System.out.println(tomorrowPrice);
 
-            List<ElpriserAPI.Elpris> twoDaysList = todaysPrice;
+            List<ElpriserAPI.Elpris> twoDaysList = new ArrayList<>(todaysPrice);
             twoDaysList.addAll(tomorrowPrice);
 
             double minSum = Double.POSITIVE_INFINITY;
             int minIndex = -1;
             for(int i = 0; i < todaysPrice.size(); i++){
-                for(int j = 0; j < )
+                sum = 0;
+                for(int j = i; j < chargingTime + i - 1; j++){
+                    sum += twoDaysList.get(j).sekPerKWh();
+                }
+                if(sum < minSum){
+                    minSum = sum;
+                    minIndex = i;
+                }
             }
-
+            System.out.println("Påbörja laddning: " + minSum + " " + minIndex);
         }
 
 
