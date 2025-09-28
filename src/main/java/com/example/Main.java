@@ -111,13 +111,13 @@ public class Main {
 
 
         List<ElpriserAPI.Elpris> todaysPrice = elpriserAPI.getPriser(date, ElpriserAPI.Prisklass.valueOf(zone));
-        System.out.println(todaysPrice);
-
-
-        // min, max, average price
-        if(todaysPrice == null || todaysPrice.isEmpty()){
-            System.out.println("Error!");
+        System.out.println("Todaysprice: " + todaysPrice);
+        if (todaysPrice.isEmpty()){
+            System.out.println("Ingen data finns för detta datum!");
+            return;
         }
+        // min, max, average price
+
         double min = Double.POSITIVE_INFINITY;
         int minIdx = -1;
         double max = 0;
@@ -160,38 +160,61 @@ public class Main {
 
             double minSum = Double.POSITIVE_INFINITY;
             int minIndex = -1;
-            for(int i = 0; i < todaysPrice.size(); i++){
+            String meanStr = "";
+
+            for(int i = 0; i < todaysPrice.size()-1; i++){
                 sum = 0;
-                for(int j = i; j < chargingTime + i - 1; j++){
-                    sum += twoDaysList.get(j).sekPerKWh();
-                }
+                for(int j = 0; j < chargingTime; j++){
+                    sum += twoDaysList.get(i+j).sekPerKWh();
+                };
                 if(sum < minSum){
                     minSum = sum;
                     minIndex = i;
                 }
             }
-            System.out.println("Påbörja laddning: " + minSum + " " + minIndex);
+            //medelpris för fönster
+            double meanInOre = (minSum /chargingTime) * 100;
+            meanStr = String.format("%.2f", meanInOre).replace(".", ",");
+
+            //System.out.println("Påbörja laddning: " + minSum + " " + minIndex);
+            System.out.printf("Påbörja laddning kl %02d:00%n", minIndex);
+            System.out.println("Medelpris för fönster: " + meanStr + " öre");
+        }
+
+        //sorted
+
+
+
+        if (sorted && chargingTime == 0) {
+            // Fetch prices for the requested day
+            List<ElpriserAPI.Elpris> slots = elpriserAPI.getPriser(date, ElpriserAPI.Prisklass.valueOf(zone));
+
+
+            // Sort by price (ascending), then by start time (earliest first on ties)
+            //java.util.Collections.sort(slots, new PriceThenTimeComparator());
+            //slots.sort(Main::compareByPriceThenTime);
+            slots.sort((x, y) -> {
+                if (x.sekPerKWh() < y.sekPerKWh()) return -1;
+                if (x.sekPerKWh() > y.sekPerKWh()) return 1;
+                return x.timeStart().compareTo(y.timeStart());
+            });
+
+
+            // Format results like "01-02 10,00 öre"
+            List<String> lines = new ArrayList<>();
+            for (ElpriserAPI.Elpris e : slots) {
+                lines.add(formatSlot(e));
+            }
+            for (ElpriserAPI.Elpris e : slots) {
+                System.out.println(formatSlot(e));
+            }
+            return;
         }
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     }
+
     public static void printHelp(){
         System.out.println("Usage: java -cp target/classes com.example.Main --zone SE1|SE2|SE3|SE4 [--date YYYY-MM-DD] [-sorted] [--charging 2h|4h|8h]" );
         System.out.println("Flags: ");
@@ -202,6 +225,12 @@ public class Main {
         System.out.println("--help           Help");
     }
 
+    private static String formatSlot(ElpriserAPI.Elpris e){
+        String range = String.format("%02d-%02d",
+                e.timeStart().getHour(), e.timeEnd().getHour());
+        String ore = String.format("%.2f", e.sekPerKWh() * 100.0).replace('.', ',');
+        return range + " " + ore + " öre";
+    }
 
 
 
