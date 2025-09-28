@@ -182,13 +182,9 @@ public class Main {
         }
 
         //sorted
-
-
-
         if (sorted && chargingTime == 0) {
             // Fetch prices for the requested day
             List<ElpriserAPI.Elpris> slots = elpriserAPI.getPriser(date, ElpriserAPI.Prisklass.valueOf(zone));
-
 
             // Sort by price (ascending), then by start time (earliest first on ties)
             //java.util.Collections.sort(slots, new PriceThenTimeComparator());
@@ -198,7 +194,6 @@ public class Main {
                 if (x.sekPerKWh() > y.sekPerKWh()) return 1;
                 return x.timeStart().compareTo(y.timeStart());
             });
-
 
             // Format results like "01-02 10,00 öre"
             List<String> lines = new ArrayList<>();
@@ -210,7 +205,6 @@ public class Main {
             }
             return;
         }
-
 
 
     }
@@ -231,7 +225,6 @@ public class Main {
         String ore = String.format("%.2f", e.sekPerKWh() * 100.0).replace('.', ',');
         return range + " " + ore + " öre";
     }
-
 
 
 }
