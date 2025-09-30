@@ -16,7 +16,7 @@ public class Main {
             return;
         }
         for(String s : args){
-            if("--help".equalsIgnoreCase(s) || "-h".equalsIgnoreCase(s)){
+            if("--help".equalsIgnoreCase(s)){
                 printHelp();
                 return;
             }
@@ -28,7 +28,7 @@ public class Main {
 
         for(int i = 0; i < args.length; i++){
             if("--zone".equalsIgnoreCase(args[i])){
-                if(i + 1 < args.length){
+                if(i + 1 < args.length && !(args[i + 1].contains("--"))){
                     zone = args[i + 1].toUpperCase();
                 }else{
                     System.out.println("ERROR! Missing value for --zone");
@@ -38,6 +38,7 @@ public class Main {
         }
         if(zone == null){
             System.out.println("Error: --zone is required!");
+            return;
         }
         boolean isValid = false;
         for(String z : validZones){
@@ -59,7 +60,7 @@ public class Main {
 
         for(int i = 0; i < args.length; i++){
             if("--date".equalsIgnoreCase(args[i])) {
-                if (i + 1 < args.length) {
+                if (i + 1 < args.length && !(args[i + 1].contains("--"))) {
                     dateStr = args[i + 1];
                 } else {
                     System.out.println("Error: --date saknar värde");
@@ -84,8 +85,7 @@ public class Main {
         int chargingTime = 0;
         for(int i = 0; i < args.length; i++){
             if("--charging".equalsIgnoreCase(args[i])){
-                if(i + 1 <= args.length){
-
+                if(i + 1 < args.length && !(args[i + 1].contains("--"))){
                     switch (args[i + 1]) {
                         case "2h" -> chargingTime = 2;
                         case "4h" -> chargingTime = 4;
@@ -95,6 +95,9 @@ public class Main {
                             return;
                         }
                     };
+                }else{
+                    System.out.println("Error: --charging saknar värde.");
+                    return;
                 }
             }
         }
@@ -102,7 +105,6 @@ public class Main {
 
         // Sorted
         boolean sorted = false;
-
         for(int i = 0; i < args.length; i++){
             if("--sorted".equalsIgnoreCase(args[i])){
                 sorted = true;
@@ -119,20 +121,20 @@ public class Main {
         // min, max, average price
         double min = Double.POSITIVE_INFINITY;
         int minIdx = -1;
-        double max = 0;
+        double max = -1;
         int maxIdx = -1;
         double averagePrice = 0;
         double sum = 0;
-        //double pris;
+        double price = 0;
 
         for(int i = 0; i < todaysPrice.size(); i++){
-            averagePrice = todaysPrice.get(i).sekPerKWh();
-            sum += averagePrice;
-            if(averagePrice > max){
-                max = averagePrice;
+            price = todaysPrice.get(i).sekPerKWh();
+            sum += price;
+            if(price > max){
+                max = price;
                 maxIdx = i;
-            }else if(averagePrice < min){
-                min = averagePrice;
+            }else if(price < min){
+                min = price;
                 minIdx = i;
             }
         }
@@ -208,7 +210,7 @@ public class Main {
 
     public static void printHelp(){
         System.out.println("Usage: java -cp target/classes com.example.Main --zone SE1|SE2|SE3|SE4 [--date YYYY-MM-DD] [-sorted] [--charging 2h|4h|8h]" );
-        System.out.println("Flags: ");
+        System.out.println("Arguments: ");
         System.out.println("--zone <arg>     Possible arg: SE1, SE2, SE3, SE4");
         System.out.println("--date           Date of interest");
         System.out.println("--charging       Charging");
