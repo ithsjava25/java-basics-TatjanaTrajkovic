@@ -163,7 +163,7 @@ public class Main {
             int minIndex = -1;
             String meanStr = "";
 
-            for(int i = 0; i < todaysPrice.size()-1; i++){
+            for(int i = 0; i < todaysPrice.size() - 1; i++){
                 sum = 0;
                 for(int j = 0; j < chargingTime; j++){
                     sum += twoDaysList.get(i+j).sekPerKWh();
@@ -177,34 +177,28 @@ public class Main {
             double meanInOre = (minSum / chargingTime) * 100;
             meanStr = String.format("%.2f", meanInOre).replace(".", ",");
 
-            //System.out.println("Påbörja laddning: " + minSum + " " + minIndex);
             System.out.printf("Påbörja laddning kl %02d:00%n", minIndex);
             System.out.println("Medelpris för fönster: " + meanStr + " öre");
         }
 
         // Sorted
-        if (sorted && chargingTime == 0) {
+        if (sorted) {
             // Fetch prices for the requested day
-            List<ElpriserAPI.Elpris> slots = elpriserAPI.getPriser(date, ElpriserAPI.Prisklass.valueOf(zone));
+            //List<ElpriserAPI.Elpris> slots = elpriserAPI.getPriser(date, ElpriserAPI.Prisklass.valueOf(zone));
 
             // Sort by price (ascending), then by start time (earliest first on ties)
-            slots.sort((x, y) -> {
+            todaysPrice.sort((x, y) -> {
                 if (x.sekPerKWh() < y.sekPerKWh()) return -1;
                 if (x.sekPerKWh() > y.sekPerKWh()) return 1;
                 return x.timeStart().compareTo(y.timeStart());
             });
 
             // Format results like "01-02 10,00 öre"
-            List<String> lines = new ArrayList<>();
-            for (ElpriserAPI.Elpris e : slots) {
-                lines.add(formatSlot(e));
-            }
-            for (ElpriserAPI.Elpris e : slots) {
-                System.out.println(formatSlot(e));
+            for (ElpriserAPI.Elpris e : todaysPrice) {
+                System.out.println(formatPrice(e));
             }
             return;
         }
-
 
     }
 
@@ -218,11 +212,10 @@ public class Main {
         System.out.println("--help           Help");
     }
 
-    private static String formatSlot(ElpriserAPI.Elpris e){
+    private static String formatPrice(ElpriserAPI.Elpris e){
         String range = String.format("%02d-%02d", e.timeStart().getHour(), e.timeEnd().getHour());
         String ore = String.format("%.2f", e.sekPerKWh() * 100.0).replace('.', ',');
         return range + " " + ore + " öre";
     }
-
 
 }
