@@ -110,7 +110,6 @@ public class Main {
         }
 
         List<ElpriserAPI.Elpris> todaysPrice = elpriserAPI.getPriser(date, ElpriserAPI.Prisklass.valueOf(zone));
-        System.out.println("Todaysprice: " + todaysPrice);
         if (todaysPrice.isEmpty()){
             System.out.println("Ingen data finns för detta datum!");
             return;
