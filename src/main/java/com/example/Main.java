@@ -79,7 +79,6 @@ public class Main {
                 return;
             }
         }
-        System.out.println("TESTAR DATE " + date);
 
         // Charging
         int chargingTime = 0;
@@ -101,7 +100,6 @@ public class Main {
                 }
             }
         }
-        System.out.println("TEST CHARGING TIME " + chargingTime);
 
         // Sorted
         boolean sorted = false;
@@ -133,22 +131,24 @@ public class Main {
             if(price > max){
                 max = price;
                 maxIdx = i;
-            }else if(price < min){
+            }
+            if(price < min){
                 min = price;
                 minIdx = i;
             }
         }
 
-        String minHour = String.format("%02d-%02d", minIdx, (minIdx + 1) % 24);
-        String maxHour = String.format("%02d-%02d", maxIdx, (maxIdx + 1) % 24);
+        String minHour = String.format("%02d-%02d", todaysPrice.get(minIdx).timeStart().getHour(), todaysPrice.get(minIdx).timeEnd().getHour());
+        String maxHour = String.format("%02d-%02d", todaysPrice.get(maxIdx).timeStart().getHour(), todaysPrice.get(maxIdx).timeEnd().getHour());
 
         averagePrice = sum / todaysPrice.size();
         String minStr = String.format("%.2f", min * 100).replace(".", ",");
         String maxStr = String.format("%.2f", max * 100).replace(".", ",");
+        String avgStr = String.format("%.2f", averagePrice * 100).replace(".", ",");
 
         System.out.println("Lägsta pris: " + minStr + " (" + minHour + ")");
         System.out.println("Högsta pris: " + maxStr + " (" + maxHour + ")");
-        System.out.println("Medelpris: " + String.format("%.2f", averagePrice).replace(".", ","));
+        System.out.println("Medelpris: " + avgStr);
 
 
         // Charging
@@ -157,7 +157,9 @@ public class Main {
             System.out.println(tomorrowPrice);
 
             List<ElpriserAPI.Elpris> twoDaysList = new ArrayList<>(todaysPrice);
-            twoDaysList.addAll(tomorrowPrice);
+            if (tomorrowPrice != null) {
+                twoDaysList.addAll(tomorrowPrice);
+            }
 
             double minSum = Double.POSITIVE_INFINITY;
             int minIndex = -1;
