@@ -110,6 +110,7 @@ public class Main {
         }
 
         List<ElpriserAPI.Elpris> todaysPrice = elpriserAPI.getPriser(date, ElpriserAPI.Prisklass.valueOf(zone));
+        //System.out.println("Todaysprice: " + todaysPrice);
         if (todaysPrice.isEmpty()){
             System.out.println("Ingen data finns för detta datum!");
             return;
@@ -164,7 +165,11 @@ public class Main {
             int minIndex = -1;
             String meanStr = "";
 
-            for(int i = 0; i < todaysPrice.size() - 1; i++){
+            System.out.println("Today size " + todaysPrice.size());
+            System.out.println("Tomorrow size " + tomorrowPrice.size());
+
+
+            for(int i = 0; i < todaysPrice.size() && i + chargingTime <= twoDaysList.size(); i++){
                 sum = 0;
                 for(int j = 0; j < chargingTime; j++){
                     sum += twoDaysList.get(i+j).sekPerKWh();
@@ -174,12 +179,18 @@ public class Main {
                     minIndex = i;
                 }
             }
-            //medelpris för fönster
-            double meanInOre = (minSum / chargingTime) * 100;
-            meanStr = String.format("%.2f", meanInOre).replace(".", ",");
+            if (minIndex == -1) {
+                System.out.println("Inget helt laddningsfönster får plats i tillgängliga timmar.");
+            } else {
+                var startAt = twoDaysList.get(minIndex).timeStart(); // ZonedDateTime / LocalDateTime
+                String startStr = startAt.format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"));
 
-            System.out.printf("Påbörja laddning kl %02d:00%n", minIndex);
-            System.out.println("Medelpris för fönster: " + meanStr + " öre");
+                double meanInOre = (minSum / chargingTime) * 100.0;
+                meanStr = String.format("%.2f", meanInOre).replace(".", ",");
+
+                System.out.printf("Påbörja laddning kl %s%n", startStr);
+                System.out.println("Medelpris för fönster: " + meanStr + " öre");
+            }
         }
 
         // Sorted
