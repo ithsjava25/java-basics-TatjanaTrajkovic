@@ -26,7 +26,11 @@ public final class ChargingWindow {
             for (int j = 0; j < chargingHours; j++) {
                 sum += twoDays.get(i + j).sekPerKWh();
             }
-            if (sum < minSum) { minSum = sum; minIndex = i; }
+            if (sum < minSum) {
+                minSum = sum; minIndex = i;
+            } else if (sum == minSum && i < minIndex){
+                minIndex = i;
+            }
         }
 
         if (minIndex == -1) return null;

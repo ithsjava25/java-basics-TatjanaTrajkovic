@@ -57,7 +57,7 @@ public class App {
                     elpriserAPI.getPriser(date.plusDays(1), ElpriserAPI.Prisklass.valueOf(zone));
 
             List<ElpriserAPI.Elpris> twoDaysList = new ArrayList<>(todaysPrice);
-            if (tomorrowPrice != null) {
+            if (tomorrowPrice != null && !tomorrowPrice.isEmpty()) {
                 twoDaysList.addAll(tomorrowPrice);
             }
 
